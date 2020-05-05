@@ -38,7 +38,7 @@ card* deckEnd = NULL;
 
 int main(void)
 {
-	printf("Let's play Blackjack, 31 style!: \n");
+	printf("Let's play Blackjack, 31 style!: \n");	// Start game!
 	int playerMoney = 1000;
 	const int MINBET = 20;
 	const int MAXBET = 200;
@@ -46,7 +46,7 @@ int main(void)
 	int roundCounter = 1;
 	bool roundEnd = false;
 
-	FILE* inputFile;
+	FILE* inputFile;								// Initialize and create deck file
 	char fileName[100];
 	FILE* deck;
 	deck = fopen("31deck.txt", "w");
@@ -62,7 +62,7 @@ int main(void)
 	}
 	fclose(deck);
 	
-	printf("\nPlease enter the name of the file with your deck of cards: ");
+	printf("\nPlease enter the name of the file with your deck of cards: ");	// Prompt user to enter deck file name
 	fgets(fileName, 100, stdin);
 	if (fileName[strlen(fileName) - 1] == '\n')
 	{
@@ -82,7 +82,7 @@ int main(void)
 
 	// Initialize deck
 	
-	createDeck(inputFile);
+	createDeck(inputFile);								// Initialize deck double linked list
 	
 	// Set up player & dealer variables
 	card* playerStart = NULL;
@@ -189,7 +189,7 @@ int main(void)
 			}
 			if ((checkDealerHand(dealerStart, dealerEnd) == 5) && (checkPlayerHand(playerStart, playerEnd) != 4))
 			{
-				printf("\nPlayer didn't hit 31. Player loses.");
+				printf("\nPlayer didn't hit 31. Player loses.");	// Checks for condition where dealer has 14 and player didn't hit 31
 				playerMoney = playerMoney - playerBet;
 
 			}
@@ -220,7 +220,7 @@ int main(void)
 						printCard(dealerIndex);
 						dealerIndex = dealerIndex->next;
 					}
-					int result = compareSums(dealerStart, playerStart);
+					int result = compareSums(dealerStart, playerStart);		// Compare dealer and player sums if player stands
 					switch (result)
 					{
 					case 1:
@@ -245,11 +245,11 @@ int main(void)
 		roundCounter++;		// Counts the number of rounds played
 	}
 	
-	if (playerMoney < 20)
+	if (playerMoney < 20)									// Checks if player has run out of money at end of round
 	{
 		printf("\nGame over! You ran out of money :(");
 	}
-	else if (numCardsLeft(deckStart, deckEnd) < 30)
+	else if (numCardsLeft(deckStart, deckEnd) < 30)			// Check how many cards are left and resets deck list
 	{
 		printf("\nLess than 30 cards left. Deck reshuffled.");
 		resetHand(&deckStart, &deckEnd);
@@ -259,7 +259,7 @@ int main(void)
 	fclose(inputFile);
 	return 0;
 }
-void createDeck(FILE* inp)
+void createDeck(FILE* inp)		// Function for creating deck given file format "(value) (suit)"
 {
 	while (!feof(inp))
 	{
@@ -272,7 +272,7 @@ void createDeck(FILE* inp)
 	deleteCard(deckStart->next, &deckStart, &deckEnd);
 	shuffleDeck(deckStart,deckEnd);
 }
-void shuffleDeck(card* hl, card* hr)
+void shuffleDeck(card* hl, card* hr)		// Shuffles deck by swapping values of random nodes in the deck
 {
 	int i = 0;
 
@@ -283,42 +283,41 @@ void shuffleDeck(card* hl, card* hr)
 	int index1, index2;
 	for (int j = 0; j < 50; j++)
 	{
-		index1 = rand() % 103;
+		index1 = rand() % 103;					// Generates random index1
 		
 		temp1 = hl;
 		for (i = 0;i < index1;i++)
 		{
-			temp1 = temp1->next;
+			temp1 = temp1->next;				// Finds random node1
 		}
 		holder->value = temp1->value;
 		strcpy(holder->suit, temp1->suit);
 
-		index2 = (rand() % 103);
+		index2 = (rand() % 103);				// Generates random index2
 		
 		temp2 = hl;
 		for (i = 0; i < index2;i++)
 		{
-			temp2 = temp2->next;
+			temp2 = temp2->next;				// Finds random node2
 		}
 
-		temp1->value = temp2->value;
+		temp1->value = temp2->value;			// Swaps node values and suits
 		strcpy(temp1->suit, temp2->suit);
 		temp2->value = holder->value;
 		strcpy(temp2->suit, holder->suit);
 	}
 	free(holder);
-	card* temp;
-	temp = deckStart;
-	printf("\nDECK SHUFFLED\n");
+
+	printf("\nDECK SHUFFLED\n");				// Indicate deck has been shuffled
 }
 
-void createCard(card* p, card** hl, card** hr, char suit[9], int value)
+void createCard(card* p, card** hl, card** hr, char suit[9], int value)		// Function for adding card to linked list
 {
-	card* temp;
+	card* temp;									// Temp storage pointer
 	temp = (card*)malloc(sizeof(card));
 	temp->value = value;
 	strcpy(temp->suit, suit);
-	if (*hl == NULL)
+	if (*hl == NULL)							// Check if list is empty
 	{
 		temp->previous = NULL;
 		temp->next = NULL;
@@ -347,12 +346,12 @@ void resetHand(card** hl, card** hr) // Resets dealer or player hand
 	*hl = NULL;
 	*hr = NULL;
 }
-void dealCard(card* p, card** hl, card** hr)
+void dealCard(card* p, card** hl, card** hr)	// Deals card to player/dealer
 {
 	card* temp;
 	temp = (card*)malloc(sizeof(card));
 	bool cardFound = false;
-	while (cardFound == false)
+	while (cardFound == false)					// Draws random card from deck
 	{
 		temp = findCard(&deckStart, &deckEnd);
 		if (temp != NULL)
@@ -408,7 +407,7 @@ card* findCard(card** hl, card** hr)	// Find random card, add to player/dealer h
 	int value = (rand() % 13) + 1;	// Picks random values for value and suit of card
 	int nsuit = (rand() % 4) + 1;
 	char suit[9];
-	switch (nsuit)	// Matches suit with the suit number
+	switch (nsuit)	// Matches suit with the random suit number
 	{
 	case 1:
 		strcpy(suit, "heart");
@@ -433,7 +432,6 @@ card* findCard(card** hl, card** hr)	// Find random card, add to player/dealer h
 	{
 		if ((deckIndex->value == value) && (strcmp(suit, (deckIndex->suit)) == 0))
 		{
-			//holder = temp;
 			deleteCard(deckIndex, hl, hr);	// Deletes card from deck
 			return temp;
 		}
@@ -529,7 +527,7 @@ int checkPlayerHand(card* hl, card* hr)		// Checks sum of player's hand
 		return 0;
 	}
 }
-int numCardsLeft(card* hl, card* hr)
+int numCardsLeft(card* hl, card* hr)		// Counts how many cards are left and returns that number
 {
 	int counter = 0;
 	while (hl != NULL)
@@ -539,7 +537,7 @@ int numCardsLeft(card* hl, card* hr)
 	}
 	return counter;
 }
-int compareSums(card* dealer, card* player)
+int compareSums(card* dealer, card* player)	// Compare dealer and player hands assuming player stands
 {
 	int dealerSum = 0;
 	int altDealerSum = 0;
@@ -682,9 +680,9 @@ void printCard(card* printedCard)	// Function for printing an individual card
 
 	}
 	//Print suit
-	if (strcmp(printedCard->suit, "heart") == 0)
+	if (strcmp(printedCard->suit, "heart") == 0)			// NOTE* Had trouble printing suit symbols in console despite using raster fonts
 	{
-		printf("\x03.H");
+		printf("\x03.H");									// Added corresponding suit letter for clarity
 	}
 	else if (strcmp(printedCard->suit, "diamond") == 0)
 	{ 
