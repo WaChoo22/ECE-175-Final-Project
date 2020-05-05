@@ -22,15 +22,15 @@ void shuffleDeck(card* hl, card* hr);
 void createCard(card* p, card** hl, card** hr, char suit[9], int value);
 
 void resetHand(card** hl, card** hr);				// Resets dealer or player hand
-void dealCard(card* p, card** hl, card** hr);
-void deleteCard(card* p, card** hl, card** hr);
+void dealCard(card* p, card** hl, card** hr);			// Deals card to player/dealer
+void deleteCard(card* p, card** hl, card** hr);			// Deletes card from deck that has been dealt tp player/dealer
 card* findCard(card** hl, card** hr);				// Find random card, add to player/dealer hand and delete from deck
 
 int checkDealerHand(card* hl, card* hr);			// Checks sum of dealer's hand
 int checkPlayerHand(card* hl, card* hr);			// Checks sum of player's hand
-int compareSums(card* dealer, card* player);
-int numCardsLeft(card* hl, card* hr);
-void printCard(card* printedCard);					// Prints cards in player's/dealer's hand
+int compareSums(card* dealer, card* player);			// Compares player sum with dealer sum
+int numCardsLeft(card* hl, card* hr);				// Goes through deck to count how many cards are left
+void printCard(card* printedCard);				// Prints cards in player's/dealer's hand
 
 
 card* deckStart = NULL;
@@ -49,7 +49,7 @@ int main(void)
 	FILE* inputFile;
 	char fileName[100];
 	FILE* deck;
-	deck = fopen("31deck.txt", "w");
+	deck = fopen("31deck.txt", "w");	// Prints deck onto file names "31deck.txt"
 	for (int i = 1; i < 14; i++)
 	{
 		for (int j = 0; j < 2; j++)
@@ -60,7 +60,7 @@ int main(void)
 			fprintf(deck, "%d %s\n", i, "spade");
 		}
 	}
-	fclose(deck);
+	fclose(deck);	// Closes deck file
 	
 	printf("\nPlease enter the name of the file with your deck of cards: ");
 	fgets(fileName, 100, stdin);
@@ -124,32 +124,32 @@ int main(void)
 		switch (checkDealerHand(dealerStart, dealerEnd))	// Checks status/sum of dealer's hand
 		{
 		case 5:		// If dealer sum equals 14
-			while (dealerIndex != NULL)						// Print all cards
+			while (dealerIndex != NULL)				// Print all cards
 			{
 				printCard(dealerIndex);
 				dealerIndex = dealerIndex->next;
 			}
 			printf("\nDealer hit 14. You have to hit 31 to win.");
 			break;
-		case 4:												// If dealer sum equals 31
-			while (dealerIndex != NULL)						// Print all cards
+		case 4:								// If dealer sum equals 31
+			while (dealerIndex != NULL)				// Print all cards
 			{
 				printCard(dealerIndex);
 				dealerIndex = dealerIndex->next;
 			}
 			playerMoney = playerMoney - playerBet;
 			printf("\nDealer hit 31! Dealer wins.");		// If dealer sum equals 31, dealer wins
-			roundEnd = true;								// The round ends. The dealer won.
+			roundEnd = true;					// The round ends. The dealer won.
 			break;
-		case 3:												// If dealer sum is between 27 and 31 (includes 27, excludes 31)
-			while (dealerIndex->next != NULL)				// Don't print last card
+		case 3:								// If dealer sum is between 27 and 31 (includes 27, excludes 31)
+			while (dealerIndex->next != NULL)			// Don't print last card
 			{
 				printCard(dealerIndex);
 				dealerIndex = dealerIndex->next;
 			}
 			printf("| |");
 			break;
-		case -1:											// If dealer goes bust (sum of dealer's cards > 31)
+		case -1:						// If dealer goes bust (sum of dealer's cards > 31)
 			while (dealerIndex != NULL)
 			{
 				printCard(dealerIndex);
@@ -172,7 +172,7 @@ int main(void)
 				scanf("%*c%c", &playerChoice);
 				while ((playerChoice != 'h') && (playerChoice != 's'))
 				{
-					printf("\nInvalid input. Please try again: ");			// If user doesn't enter a valid input ("h" or "s")
+					printf("\nInvalid input. Please try again: ");		// Keeps asking if user wants to hit or stand if user doesn't enter a valid input ("h" or "s")
 					scanf("%*c%c", &playerChoice);
 				}
 				playerIndex = playerStart;
@@ -187,7 +187,7 @@ int main(void)
 					}
 				}
 			}
-			if ((checkDealerHand(dealerStart, dealerEnd) == 5) && (checkPlayerHand(playerStart, playerEnd) != 4))
+			if ((checkDealerHand(dealerStart, dealerEnd) == 5) && (checkPlayerHand(playerStart, playerEnd) != 4))	// Condition for when dealer's hand sum = 14 and player didn't hit 31
 			{
 				printf("\nPlayer didn't hit 31. Player loses.");
 				playerMoney = playerMoney - playerBet;
@@ -223,15 +223,15 @@ int main(void)
 					int result = compareSums(dealerStart, playerStart);
 					switch (result)
 					{
-					case 1:
+					case 1:			// If player sum is less than dealer sum
 						playerMoney = playerMoney - playerBet;
 						printf("\nDealer wins! Player loses $%d.", playerBet);
 						break;
-					case -1:
+					case -1:		// If player sum is greater than dealer sum
 						playerMoney = playerMoney + playerBet;
 						printf("\nPlayer wins! Player wins $%d.", playerBet);
 						break;
-					case 0:
+					case 0:			// If player sum is equal to dealer sum
 						printf("\nRound is a wash!");
 						break;
 					}
@@ -245,23 +245,22 @@ int main(void)
 		roundCounter++;		// Counts the number of rounds played
 	}
 	
-	if (playerMoney < 20)
+	if (playerMoney < 20)	// If player runs out of money (or gets less than $20 (MINBET)), player loses; Game ends
 	{
 		printf("\nGame over! You ran out of money :(");
 	}
-	else if (numCardsLeft(deckStart, deckEnd) < 30)
+	else if (numCardsLeft(deckStart, deckEnd) < 30)		// Shuffles deck when less than 30 cards are left
 	{
-		printf("\nLess than 30 cards left. Deck reshuffled.");
 		resetHand(&deckStart, &deckEnd);
 		createDeck(inputFile);
 		shuffleDeck(&deckStart, &deckEnd);
 	}
-	fclose(inputFile);
+	fclose(inputFile);	// Closes deck file
 	return 0;
 }
 void createDeck(FILE* inp)
 {
-	while (!feof(inp))
+	while (!feof(inp))	// While not at the end of the file
 	{
 		int value;
 		char suit[9];
@@ -270,9 +269,9 @@ void createDeck(FILE* inp)
 		createCard(deckStart, &deckStart, &deckEnd, suit, value);
 	}
 	deleteCard(deckStart->next, &deckStart, &deckEnd);
-	shuffleDeck(deckStart,deckEnd);
+	shuffleDeck(deckStart,deckEnd);		// Shuffles deck
 }
-void shuffleDeck(card* hl, card* hr)
+void shuffleDeck(card* hl, card* hr)		// Function to shuffle the deck
 {
 	int i = 0;
 
@@ -360,21 +359,21 @@ void dealCard(card* p, card** hl, card** hr)
 			cardFound = true;
 		}
 	}
-	if (*hl == NULL)	// if adding to beginning of deck/hand
+	if (*hl == NULL)	// If adding to beginning of deck/hand
 	{
 		*hl = temp;
 		*hr = temp;
 		temp->next = NULL;
 		temp->previous = NULL;
 	}
-	else if (p->next == NULL) // if adding at the end of deck/hand
+	else if (p->next == NULL) // If adding at the end of deck/hand
 	{
 		p->next = temp;
 		temp->previous = p;
 		*hr = temp;
 		temp->next = NULL;
 	}
-	else		 // if adding to the middle of the deck/hand
+	else		 // If adding to the middle of the deck/hand
 	{
 		temp->next = p->next;
 		p->next->previous = temp;
@@ -382,26 +381,27 @@ void dealCard(card* p, card** hl, card** hr)
 		temp->previous = p;
 	}
 }
-void deleteCard(card* p, card** hl, card** hr) {
-	if (p == *hl) 		// if deleting the first element  
+void deleteCard(card* p, card** hl, card** hr)		// Deletes card from deck that has been dealt tp player/dealer
+{
+	if (p == *hl) 		// If deleting the first element  
 	{
-		*hl = p->next; 	// update the left head pointer
+		*hl = p->next; 	// Update the left head pointer
 	}
 	else
 	{
 		p->previous->next = p->next;
 	}
 
-	if (p == *hr)		// if deleting the last element 
+	if (p == *hr)		// If deleting the last element 
 	{
-		*hr = p->previous; 	// update right head pointer
+		*hr = p->previous; 	// Update right head pointer
 	}
 	else
 	{
 		p->next->previous = p->previous;
 	}
 
-	free(p); // free memory 
+	free(p); // Free memory 
 }
 card* findCard(card** hl, card** hr)	// Find random card, add to player/dealer hand and delete from deck
 {
@@ -532,14 +532,14 @@ int checkPlayerHand(card* hl, card* hr)		// Checks sum of player's hand
 int numCardsLeft(card* hl, card* hr)
 {
 	int counter = 0;
-	while (hl != NULL)
+	while (hl != NULL)	// Goes through deck to count how many cards are left
 	{
 		hl = hl->next;
 		counter++;
 	}
 	return counter;
 }
-int compareSums(card* dealer, card* player)
+int compareSums(card* dealer, card* player)	// Compares player sum with dealer sum
 {
 	int dealerSum = 0;
 	int altDealerSum = 0;
@@ -583,7 +583,7 @@ int compareSums(card* dealer, card* player)
 		}
 		player = player->next;
 	}
-	if (altDealerSum > 31)									// If alternate dealer sum greater than 31, use normal sum
+	if (altDealerSum > 31)						// If alternate dealer sum greater than 31, use normal sum
 	{
 		printf("\nDealer has a total of %d", dealerSum);
 		if (altPlayerSum > 31)
@@ -592,8 +592,8 @@ int compareSums(card* dealer, card* player)
 			if (playerSum < dealerSum)
 			{
 				return 1;
-			}
-			else if (playerSum > dealerSum)
+			}	
+			else if (playerSum > dealerSum)		// Comparing sums of player/dealer
 			{
 				return -1;
 			}
@@ -609,7 +609,7 @@ int compareSums(card* dealer, card* player)
 			{
 				return 1;
 			}
-			else if (altPlayerSum > dealerSum)
+			else if (altPlayerSum > dealerSum)	// Comparing altSum of player with dealer sum
 			{
 				return -1;
 			}
@@ -629,7 +629,7 @@ int compareSums(card* dealer, card* player)
 			{
 				return 1;
 			}
-			else if (playerSum > altDealerSum)
+			else if (playerSum > altDealerSum)	// Comparing player sum with altSum of dealer
 			{
 				return -1;
 			}
@@ -645,7 +645,7 @@ int compareSums(card* dealer, card* player)
 			{
 				return 1;
 			}
-			else if (altPlayerSum > altDealerSum)
+			else if (altPlayerSum > altDealerSum)	// Comparing altSums of player/dealer
 			{
 				return -1;
 			}
@@ -662,41 +662,41 @@ void printCard(card* printedCard)	// Function for printing an individual card
 	// Print value if ace or face card
 	if (printedCard->value == 1)
 	{
-		printf("A");
+		printf("A ");
 	}
 	else if (printedCard->value == 11)
 	{
-		printf("J");
+		printf("J ");
 	}
 	else if (printedCard->value == 12)
 	{
-		printf("Q");
+		printf("Q ");
 	}
 	else if (printedCard->value == 13)
 	{
-		printf("K");
+		printf("K ");
 	}
 	else	// Print face value
 	{
-		printf("%d", printedCard->value);
+		printf("%d ", printedCard->value);
 
 	}
 	//Print suit
 	if (strcmp(printedCard->suit, "heart") == 0)
 	{
-		printf("\x03.H");
+		printf("\x03 H");
 	}
 	else if (strcmp(printedCard->suit, "diamond") == 0)
 	{ 
-		printf("\x04.D");
+		printf("\x04 D");
 	}
 	else if (strcmp(printedCard->suit, "spade") == 0)
 	{
-		printf("\x06.S");
+		printf("\x06 S");
 	}
 	else if (strcmp(printedCard->suit, "club") == 0)
 	{
-		printf("\x05.C");
+		printf("\x05 C");
 	}
 	if (printedCard->next != NULL)
 	{
